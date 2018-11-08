@@ -11,39 +11,40 @@ from bs4 import BeautifulSoup
 from prettytable import PrettyTable
 import json
 
+
 class Baidu(object):
     """贴吧签到"""
+
     def __init__(self):
         self.sign_url = (
             "http://tieba.baidu.com/sign/add")
         self.sess = requests.Session()
         self.sess.timeout = 30
         with open('cookies', 'r') as cookies:
+            cookie = cookies.readline().strip()
             self.sess.headers = {
-                "Cookie": cookies.read(),
+                "Cookie": cookie,
                 "User-Agent": (
                     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36"),
             }
-
 
     def sign_single_ba(self, kw):
         """单个吧签到"""
         url = self.sign_url
         tbs = self.sess.get("http://tieba.baidu.com/dc/common/tbs").text
         tbs = json.loads(tbs)["tbs"]
-        postdata = {"ie":"utf-8", "tbs":tbs, "kw":kw}
+        postdata = {"ie": "utf-8", "tbs": tbs, "kw": kw}
 
         try:
-            html = self.sess.post(url, data=postdata,timeout=30).text
+            html = self.sess.post(url, data=postdata, timeout=30).text
         except:
             print("timeout, sign again.")
-            html = self.sess.post(url, data=postdata,timeout=30).text
+            html = self.sess.post(url, data=postdata, timeout=30).text
         html_json = json.loads(html)
         if html_json["no"] == 0 or html_json["no"] == 1101:
             return "签到成功"
         else:
             return "签到异常"
-
 
     def get_info(self):
         """获取个人关注贴吧，以及各贴吧经验，等级并返回"""
@@ -84,6 +85,7 @@ class Baidu(object):
 def start():
     tieba = Baidu()
     tieba.sign_all_ba()
+
 
 if __name__ == '__main__':
     start()
